@@ -4,10 +4,10 @@ export default function Home() {
   const categories = { Papeleria: "fa fa-book", Ropa: "fa fa-female" };
   return (
     <div className="mt-10">
-      <img
-        src={require("../img/banner-home.jpg")}
-        className="w-full h-96 px-5"
-      />
+      <div className="flex justify-center w-0 md:w-full">
+        <img src={require("../img/banner-home.jpg")} className="w-3/4 h-fit" />
+      </div>
+
       <h1 className="ml-5 my-5 text-4xl text-gray-700">Categorias</h1>
       <div className="grid grid-cols-1 justify-items-center px-8  md:grid-cols-2 md:px-32">
         {Object.keys(categories).map((key, i) => (

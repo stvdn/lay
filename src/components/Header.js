@@ -1,11 +1,16 @@
-import React, { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import React, { useEffect, useState, Fragment, useRef } from "react";
+import { Link } from "react-router-dom";
+import UserMenu from "./UserMenu";
 
 export default function Header() {
   const [currentPath, setCurrentPath] = useState("");
+  const [isInCart, setIsInCart] = useState(false);
+
   useEffect(() => {
+    console.log("here");
     setCurrentPath(window.location.pathname);
-  }, []);
+    currentPath === "/cart" ? setIsInCart(true) : setIsInCart(false);
+  }, [currentPath]);
   return (
     <nav className="flex flex-col p-5 bg-gray-100">
       <ul className="flex items-center">
@@ -20,68 +25,67 @@ export default function Header() {
           type="text"
           placeholder="Buscar"
         />
-        <a className="hover: cursor-pointer hover:text-yellow-500">
-          <i
-            className="fa fa-user-circle mx-6"
-            aria-hidden="true"
-            style={{ fontSize: "30px" }}
-          ></i>
-        </a>
-        <a className="hover: cursor-pointer hover:text-yellow-500">
+        <UserMenu></UserMenu>
+        <Link
+          to="/cart"
+          onClick={() => {
+            setCurrentPath("/cart");
+          }}
+          className={`hover:cursor-pointer ${
+            isInCart ? "text-yellow-500" : " hover:text-yellow-500"
+          }`}
+        >
           <i
             className="fa fa-shopping-cart"
             aria-hidden="true"
             style={{ fontSize: "30px" }}
           ></i>
-        </a>
+        </Link>
       </ul>
       <ul className="flex mt-3">
         <li className="flex-1 mr-2">
-          <Link
-            className={`text-center block rounded py-2 px-4 hover:bg-gray-700 ${
-              currentPath === "/"
-                ? "bg-gray-500 text-white"
-                : "bg-white  text-gray-700 hover:text-white"
-            }`}
-            to="/"
-            onClick={() => {
-              setCurrentPath("/");
-            }}
-          >
-            Inicio
-          </Link>
+          <HeaderLink
+            currentPath={currentPath}
+            page={""}
+            setCurrentPath={setCurrentPath}
+            title={"Inicio"}
+          />
         </li>
         <li className="flex-1 mr-2">
-          <Link
-            className={`text-center block rounded py-2 px-4 hover:bg-gray-700 ${
-              currentPath === "/products"
-                ? "bg-gray-500 text-white"
-                : "bg-white  text-gray-700 hover:text-white"
-            }`}
-            to="/products"
-            onClick={() => {
-              setCurrentPath("/products");
-            }}
-          >
-            Productos
-          </Link>
+          <HeaderLink
+            currentPath={currentPath}
+            page={"products"}
+            setCurrentPath={setCurrentPath}
+            title={"Productos"}
+          />
         </li>
         <li className="text-center flex-1">
-          <Link
-            className={`text-center block rounded py-2 px-4 hover:bg-gray-700 ${
-              currentPath === "/about"
-                ? "bg-gray-500 text-white"
-                : "bg-white  text-gray-700 hover:text-white"
-            }`}
-            to="/about"
-            onClick={() => {
-              setCurrentPath("/about");
-            }}
-          >
-            Acerca de
-          </Link>
+          <HeaderLink
+            currentPath={currentPath}
+            page={"about"}
+            setCurrentPath={setCurrentPath}
+            title={"Acerca de"}
+          />
         </li>
       </ul>
     </nav>
+  );
+}
+
+function HeaderLink({ currentPath, page, setCurrentPath, title }) {
+  return (
+    <Link
+      className={`text-center block rounded py-2 px-4 hover:bg-yellow-500 ${
+        currentPath === `/${page}`
+          ? "bg-gray-500 text-white"
+          : "bg-white  text-gray-700 hover:text-white"
+      }`}
+      to={`/${page}`}
+      onClick={() => {
+        setCurrentPath(`/${page}`);
+      }}
+    >
+      {title.charAt(0).toUpperCase() + title.slice(1)}
+    </Link>
   );
 }
