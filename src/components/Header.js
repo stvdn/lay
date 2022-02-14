@@ -7,10 +7,10 @@ export default function Header() {
   const [isInCart, setIsInCart] = useState(false);
 
   useEffect(() => {
-    console.log("here");
     setCurrentPath(window.location.pathname);
     currentPath === "/cart" ? setIsInCart(true) : setIsInCart(false);
   }, [currentPath]);
+
   return (
     <nav className="flex flex-col p-5 bg-gray-100">
       <ul className="flex items-center">

@@ -1,9 +1,17 @@
-import React, { Fragment, useState } from "react";
+import React, { Fragment, useEffect, useState } from "react";
 import { Menu, Transition } from "@headlessui/react";
 import { Link } from "react-router-dom";
+import { doc, getDoc, getFirestore } from "firebase/firestore";
+import { useDispatch, useSelector } from "react-redux";
+import { signIn } from "../features/signIn/signInSlice";
+import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
+import { notifyError, notifySuccess } from "../services/notification";
+import { ToastContainer } from "react-toastify";
 
 export default function UserMenu() {
-  const [user, setUser] = useState();
+  const dispatch = useDispatch();
+  const auth = getAuth();
+  const [signInStatus, setSignInStatus] = useState(false);
   const menuItemsLogged = [
     {
       title: "Perfil",
@@ -25,6 +33,11 @@ export default function UserMenu() {
       icon: "fa fa-handshake-o",
       page: "upload-product",
     },
+    {
+      title: "Cerrar sesión",
+      icon: "fa fa-sign-out",
+      page: "",
+    },
   ];
   const menuItemsNotLogged = [
     {
@@ -38,16 +51,46 @@ export default function UserMenu() {
       page: "sign-up",
     },
   ];
+
+  useEffect(() => {
+    const getCurrentUser = () => {
+      console.log("here");
+      onAuthStateChanged(auth, async (user) => {
+        if (user) {
+          const db = getFirestore();
+          const docRef = doc(db, "users", user.uid);
+          const docSnap = await getDoc(docRef);
+          dispatch(
+            signIn({ signIn: true, userId: user.uid, userData: docSnap.data() })
+          );
+          setSignInStatus(true);
+        } else {
+          dispatch(signIn({ signIn: false, userId: "", userData: {} }));
+        }
+      });
+    };
+    getCurrentUser();
+  }, [signInStatus]);
+
   return (
     <Menu as="div" className="relative inline-block text-left">
+      <ToastContainer />
       <div>
         <Menu.Button>
           <a className="hover: cursor-pointer hover:text-yellow-500">
-            <i
-              className="fa fa-user-circle mx-6"
-              aria-hidden="true"
-              style={{ fontSize: "30px" }}
-            ></i>
+            {signInStatus ? (
+              <i
+                className="fa fa-user-circle mx-6"
+                aria-hidden="true"
+                style={{ fontSize: "30px" }}
+              ></i>
+            ) : (
+              <i
+                className="fa fa-sign-in mx-6"
+                aria-hidden="true"
+                style={{ fontSize: "30px" }}
+              ></i>
+            )}
           </a>
         </Menu.Button>
       </div>
@@ -62,7 +105,7 @@ export default function UserMenu() {
       >
         <Menu.Items className="absolute right-0 w-56 mt-2 origin-top-right bg-white divide-y divide-gray-100 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
           <div className="px-1 py-1 ">
-            {user
+            {signInStatus
               ? menuItemsLogged.map((item, index) => {
                   return (
                     <MenuItem
@@ -70,6 +113,7 @@ export default function UserMenu() {
                       icon={item.icon}
                       key={index}
                       page={item.page}
+                      setSignInStatus={setSignInStatus}
                     />
                   );
                 })
@@ -90,7 +134,50 @@ export default function UserMenu() {
   );
 }
 
-function MenuItem({ title, icon, page }) {
+function MenuItem({ title, icon, page, setSignInStatus }) {
+  if (title === "Cerrar sesión") {
+    console.log("what");
+    const auth = getAuth();
+    const signOutUser = () => {
+      signOut(auth)
+        .then(() => {
+          console.log("herereer?");
+          setSignInStatus(false);
+          notifySuccess("Te esperamos");
+        })
+        .catch((error) => {
+          console.log("herereereuaoeuaoeuaoeu?");
+          notifyError(error);
+        });
+    };
+    return (
+      <Menu.Item>
+        {({ active }) => (
+          <button
+            className={`${
+              active ? "bg-yellow-500 text-white" : "text-gray-900"
+            } group flex rounded-md items-center w-full px-2 py-2 text-sm`}
+            onClick={() => signOutUser()}
+          >
+            {active ? (
+              <i
+                className={icon}
+                aria-hidden="true"
+                style={{ marginRight: "10px" }}
+              ></i>
+            ) : (
+              <i
+                className={icon}
+                aria-hidden="true"
+                style={{ marginRight: "10px" }}
+              ></i>
+            )}
+            {title}
+          </button>
+        )}
+      </Menu.Item>
+    );
+  }
   return (
     <Menu.Item>
       {({ active }) => (
