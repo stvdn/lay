@@ -1,12 +1,12 @@
 import React from "react";
 import Input from "../components/Input";
 import { useForm } from "react-hook-form";
-import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
-import { doc, setDoc, getFirestore } from "firebase/firestore";
 import { ToastContainer, toast } from "react-toastify";
 import { useNavigate } from "react-router";
 import { useDispatch } from "react-redux";
 import { signIn } from "../features/signIn/signInSlice";
+import { addDocWithId } from "../firebase/firestore";
+import { createUserEmail } from "../firebase/fireauth";
 
 export default function SignUp() {
   const navigate = useNavigate();
@@ -42,8 +42,7 @@ export default function SignUp() {
   } = useForm();
 
   const registerUser = (data) => {
-    const auth = getAuth();
-    createUserWithEmailAndPassword(auth, data.email, data.password)
+    createUserEmail(data)
       .then((userCredential) => {
         const user = userCredential.user;
         createUserDoc(user.uid, data);
@@ -66,8 +65,7 @@ export default function SignUp() {
       houseReference: data.houseReference,
     };
     try {
-      const db = getFirestore();
-      await setDoc(doc(db, "users", docID), dataWithoutCredentials);
+      addDocWithId("users", docID, dataWithoutCredentials);
       dispatch(
         signIn({
           signIn: true,

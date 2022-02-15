@@ -54,18 +54,29 @@ export default function UserMenu() {
 
   useEffect(() => {
     const getCurrentUser = () => {
-      console.log("here");
       onAuthStateChanged(auth, async (user) => {
         if (user) {
           const db = getFirestore();
           const docRef = doc(db, "users", user.uid);
           const docSnap = await getDoc(docRef);
           dispatch(
-            signIn({ signIn: true, userId: user.uid, userData: docSnap.data() })
+            signIn({
+              signIn: true,
+              userId: user.uid,
+              userData: docSnap.data(),
+              verifiedUser: user.emailVerified,
+            })
           );
           setSignInStatus(true);
         } else {
-          dispatch(signIn({ signIn: false, userId: "", userData: {} }));
+          dispatch(
+            signIn({
+              signIn: false,
+              userId: "",
+              userData: {},
+              verifiedUser: false,
+            })
+          );
         }
       });
     };
@@ -136,17 +147,14 @@ export default function UserMenu() {
 
 function MenuItem({ title, icon, page, setSignInStatus }) {
   if (title === "Cerrar sesión") {
-    console.log("what");
     const auth = getAuth();
     const signOutUser = () => {
       signOut(auth)
         .then(() => {
-          console.log("herereer?");
           setSignInStatus(false);
           notifySuccess("Te esperamos");
         })
         .catch((error) => {
-          console.log("herereereuaoeuaoeuaoeu?");
           notifyError(error);
         });
     };

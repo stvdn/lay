@@ -2,13 +2,13 @@ import React from "react";
 import Input from "../components/Input";
 import { useForm } from "react-hook-form";
 import { ToastContainer, toast } from "react-toastify";
-import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router";
 import { signIn } from "../features/signIn/signInSlice";
-import { doc, getDoc, getFirestore } from "firebase/firestore";
 import { Link } from "react-router-dom";
 import { notifyError, notifySuccess } from "../services/notification";
+import { signInWithEmail } from "../firebase/fireauth";
+import { getDocById } from "../firebase/firestore";
 
 export default function SignIn() {
   const {
@@ -21,13 +21,18 @@ export default function SignIn() {
   const navigate = useNavigate();
 
   const signInUser = (data) => {
-    const auth = getAuth();
-    signInWithEmailAndPassword(auth, data.email, data.password)
-      .then((userCredential) => {
+    signInWithEmail()
+      .then(async (userCredential) => {
         const userId = userCredential.user.uid;
-        const userData = getUserData(userId);
-        console.log(userData);
-        dispatch(signIn({ signIn: true, userId, userData }));
+        const userData = await getUserData(userId);
+        dispatch(
+          signIn({
+            signIn: true,
+            userId,
+            userData,
+            verifiedUser: userCredential.user.emailVerified,
+          })
+        );
         notifySuccess("Bienvenido!");
         navigate("/");
       })
@@ -40,9 +45,7 @@ export default function SignIn() {
   };
 
   const getUserData = async (id) => {
-    const db = getFirestore();
-    const docRef = doc(db, "users", id);
-    const docSnap = await getDoc(docRef);
+    const docSnap = await getDocById();
     return docSnap.data();
   };
 

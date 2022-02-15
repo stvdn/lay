@@ -6,12 +6,14 @@ export const signInSlice = createSlice({
     signIn: false,
     userId: "",
     userData: {},
+    verifiedUser: false,
   },
   reducers: {
     signIn: (state, action) => {
       state.signIn = action.payload.signIn;
       state.userId = action.payload.userId;
       state.userData = action.payload.userData;
+      state.verifiedUser = action.payload.verifiedUser;
     },
   },
 });
