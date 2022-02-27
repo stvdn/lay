@@ -1,7 +1,8 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
 export default function Home() {
-  const categories = { Papeleria: "fa fa-book", Ropa: "fa fa-female" };
+  const categories = { papeleria: "fa fa-book" };
   return (
     <div className="mt-10">
       <div className="flex justify-center w-0 md:w-full">
@@ -9,7 +10,7 @@ export default function Home() {
       </div>
 
       <h1 className="ml-5 my-5 text-4xl text-gray-700">Categorias</h1>
-      <div className="grid grid-cols-1 justify-items-center px-8  md:grid-cols-2 md:px-32">
+      <div className="grid grid-cols-1 justify-items-center px-8  md:grid-cols-1 md:px-32">
         {Object.keys(categories).map((key, i) => (
           <span
             key={i}
@@ -20,7 +21,9 @@ export default function Home() {
               style={{ fontSize: 50, color: "#6b7280" }}
               aria-hidden="true"
             ></i>
-            <p>{key}</p>
+            <Link to="/products" className="capitalize">
+              {key}
+            </Link>
           </span>
         ))}
       </div>

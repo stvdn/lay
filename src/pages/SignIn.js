@@ -4,11 +4,11 @@ import { useForm } from "react-hook-form";
 import { ToastContainer, toast } from "react-toastify";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router";
-import { signIn } from "../features/signIn/signInSlice";
+import { signIn } from "../slices/signInSlice";
 import { Link } from "react-router-dom";
 import { notifyError, notifySuccess } from "../services/notification";
-import { signInWithEmail } from "../firebase/fireauth";
-import { getDocById } from "../firebase/firestore";
+import { signInWithEmail } from "../services/firebase/fireauth";
+import { getDocById } from "../services/firebase/firestore";
 
 export default function SignIn() {
   const {
@@ -21,7 +21,7 @@ export default function SignIn() {
   const navigate = useNavigate();
 
   const signInUser = (data) => {
-    signInWithEmail()
+    signInWithEmail(data)
       .then(async (userCredential) => {
         const userId = userCredential.user.uid;
         const userData = await getUserData(userId);
@@ -39,13 +39,13 @@ export default function SignIn() {
       .catch((error) => {
         const errorCode = error.code;
         const errorMessage = error.message;
-        notifyError(errorMessage);
+        notifyError(errorMessage, error.code);
         reset();
       });
   };
 
   const getUserData = async (id) => {
-    const docSnap = await getDocById();
+    const docSnap = await getDocById(id);
     return docSnap.data();
   };
 

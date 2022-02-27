@@ -5,6 +5,7 @@ import {
   getDoc,
   addDoc,
   collection,
+  updateDoc,
 } from "firebase/firestore";
 
 export const addDocWithId = async (collection, id, data) => {
@@ -22,4 +23,10 @@ export const getDocById = async (id) => {
   const db = getFirestore();
   const docRef = doc(db, "users", id);
   return await getDoc(docRef);
+};
+
+export const updateDocById = async (collection, id, data) => {
+  const db = getFirestore();
+  const docRef = doc(db, collection, id);
+  return await updateDoc(docRef, data);
 };

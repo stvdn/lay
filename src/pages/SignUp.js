@@ -4,9 +4,9 @@ import { useForm } from "react-hook-form";
 import { ToastContainer, toast } from "react-toastify";
 import { useNavigate } from "react-router";
 import { useDispatch } from "react-redux";
-import { signIn } from "../features/signIn/signInSlice";
-import { addDocWithId } from "../firebase/firestore";
-import { createUserEmail } from "../firebase/fireauth";
+import { signIn } from "../slices/signInSlice";
+import { addDocWithId } from "../services/firebase/firestore";
+import { createUserEmail } from "../services/firebase/fireauth";
 
 export default function SignUp() {
   const navigate = useNavigate();
@@ -45,7 +45,7 @@ export default function SignUp() {
     createUserEmail(data)
       .then((userCredential) => {
         const user = userCredential.user;
-        createUserDoc(user.uid, data);
+        createUserDoc(user.uid, data, user.email);
       })
       .catch((error) => {
         const errorCode = error.code;
@@ -55,7 +55,7 @@ export default function SignUp() {
       });
   };
 
-  const createUserDoc = async (docID, data) => {
+  const createUserDoc = async (docID, data, email) => {
     const dataWithoutCredentials = {
       name: data.name,
       lastName: data.lastName,
@@ -63,6 +63,7 @@ export default function SignUp() {
       city: data.city,
       direction: data.direction,
       houseReference: data.houseReference,
+      email: email,
     };
     try {
       addDocWithId("users", docID, dataWithoutCredentials);

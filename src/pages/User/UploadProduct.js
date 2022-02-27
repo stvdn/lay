@@ -1,26 +1,48 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import Input from "../../components/Input";
 import { useForm } from "react-hook-form";
-import { addDocWithoutId } from "../../firebase/firestore";
+import {
+  addDocWithoutId,
+  updateDocById,
+} from "../../services/firebase/firestore";
+import { dowloadURL, uploadFile } from "../../services/firebase/firestorage";
+import { notifySuccess } from "../../services/notification";
 
 export default function UploadProduct() {
   const {
     handleSubmit,
     register,
     formState: { errors },
+    setValue,
   } = useForm();
   const [image, setImage] = useState("");
+  const [imageFile, setImageFile] = useState("");
+  const inputImage = useRef(null);
 
-  const uploadPhoto = (event) => {
-    const fileImage = event.target.files[0];
+  const displayPhoto = () => {
+    const fileImage = inputImage.current.files[0];
     const imageURL = URL.createObjectURL(fileImage);
     setImage(imageURL);
+    setImageFile(fileImage);
+    setValue("image", imageURL);
   };
 
   const postProduct = async (data) => {
     console.log(data);
     const productId = await addDocWithoutId("products", data);
-    console.log(productId);
+    const pathPhoto = `images/${productId}`;
+    uploadFile(productId, pathPhoto, imageFile).then(() => {
+      uploadPhoto(productId, pathPhoto);
+    });
+  };
+
+  const uploadPhoto = (docId, path) => {
+    dowloadURL(path).then((url) => {
+      const data = { image: url };
+      updateDocById("products", docId, data).then(() => {
+        notifySuccess("Producto publicado!");
+      });
+    });
   };
 
   return (
@@ -51,10 +73,13 @@ export default function UploadProduct() {
             type="file"
             className="hidden"
             id="fileInput"
-            onChange={uploadPhoto}
-            //{...register("image"), {
-            // required: "Este campo es obligatorio",
-            // }}
+            {...register("image", {
+              required: "Este campo es obligatorio",
+              onChange: () => {
+                displayPhoto();
+              },
+            })}
+            ref={inputImage}
           />
 
           <p className="text-red-500 mt-2">
@@ -74,6 +99,7 @@ export default function UploadProduct() {
           <Input
             label="Precio"
             name="price"
+            type="number"
             register={register}
             validations={{
               required: "Este campo es obligatorio",
@@ -83,6 +109,7 @@ export default function UploadProduct() {
           <Input
             label="Cantidad"
             name="stock"
+            type="number"
             register={register}
             validations={{
               required: "Este campo es obligatorio",
@@ -98,6 +125,22 @@ export default function UploadProduct() {
             }}
             errors={errors}
           />
+          <div className="mb-5 col-span-full">
+            <label className="font-bold mb-1 text-gray-700 block capitalize">
+              Descripción
+            </label>
+            <textarea
+              rows={5}
+              type="text"
+              className={`w-full px-4 py-3 rounded-lg shadow-sm shadow-gray-500 focus:outline focus:outline-yellow-500  text-gray-600 font-medium`}
+              {...register("description", {
+                required: "Este campo es obligatorio",
+              })}
+            />
+            <p className="text-red-500 mt-2">
+              {errors.description && errors.description.message}
+            </p>
+          </div>
         </div>
         <div className="flex justify-center mt-10">
           <button className="w-32 focus:outline-none border border-transparent py-2 px-5 rounded-lg shadow-sm text-center text-white bg-gray-500 hover:bg-yellow-500 font-medium">

@@ -1,54 +1,25 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { updateProductQuantity } from "../slices/cartSlice";
 
 export default function Cart() {
-  const productsAPI = [
-    {
-      name: "Papel premium",
-      category: "Bazar",
-      quantity: 2,
-      price: 2.3,
-      image:
-        "https://img.lakeshorelearning.com/is/image/OCProduction/ta50ac_g?wid=800&fmt=jpeg&qlt=85,1&pscan=auto&op_sharpen=0&resMode=sharp2&op_usm=1,0.65,6,0",
-    },
-    {
-      name: "Papel premium",
-      category: "Bazar",
-      quantity: 2,
-      price: 2.3,
-      image:
-        "https://img.lakeshorelearning.com/is/image/OCProduction/ta50ac_g?wid=800&fmt=jpeg&qlt=85,1&pscan=auto&op_sharpen=0&resMode=sharp2&op_usm=1,0.65,6,0",
-    },
-    {
-      name: "Papel premium",
-      category: "Bazar",
-      quantity: 2,
-      price: 2.3,
-      image:
-        "https://img.lakeshorelearning.com/is/image/OCProduction/ta50ac_g?wid=800&fmt=jpeg&qlt=85,1&pscan=auto&op_sharpen=0&resMode=sharp2&op_usm=1,0.65,6,0",
-    },
-    {
-      name: "Papel premium",
-      category: "Bazar",
-      quantity: 2,
-      price: 2.3,
-      image:
-        "https://img.lakeshorelearning.com/is/image/OCProduction/ta50ac_g?wid=800&fmt=jpeg&qlt=85,1&pscan=auto&op_sharpen=0&resMode=sharp2&op_usm=1,0.65,6,0",
-    },
-  ];
   const [productsPrice, setProductsPrice] = useState(0);
   const [deliveryPrice, setDeliveryPrice] = useState(10);
-  const [products, setProducts] = useState(productsAPI);
+  const [products, setProducts] = useState([]);
+  const productsRedux = useSelector((state) => state.cart.products);
+  const dispatch = useDispatch();
 
   useEffect(() => {
+    setProducts(productsRedux);
     let totalPrice = 0;
-    products.forEach((product) => {
+    productsRedux.forEach((product) => {
       totalPrice += product.price * product.quantity;
     });
     setProductsPrice(parseFloat(totalPrice.toFixed(3).slice(0, -1)));
   }, []);
 
   const updateQuantity = (index, change) => {
+    dispatch(updateProductQuantity({ index, change }));
     let productsUpdate = [...products];
     productsUpdate[index].quantity += change;
     change > 0
@@ -69,7 +40,7 @@ export default function Cart() {
         <div className="flex flex-col md:flex-row justify-between border-b pb-8">
           <h1 className="font-semibold text-2xl">Carrito</h1>
           <h2 className="font-semibold text-2xl underline decoration-wavy">
-            3 Producto(s)
+            {products.length} Producto(s)
           </h2>
         </div>
         <div className="flex mt-10 mb-5 justify-center">
@@ -172,7 +143,11 @@ export default function Cart() {
             <span>Total</span>
             <span>${parseFloat(productsPrice) + deliveryPrice}</span>
           </div>
-          <button className="bg-gray-500 font-semibold hover:bg-yellow-500 py-3 text-sm text-white uppercase w-full">
+          <button
+            className={`bg-gray-500 font-semibold py-3 text-sm text-white uppercase w-full ${
+              products.length > 0 && " hover:bg-yellow-500 "
+            }`}
+          >
             Comprar
           </button>
         </div>

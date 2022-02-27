@@ -1,9 +1,11 @@
 import { configureStore } from "@reduxjs/toolkit";
-import signInReducer from "../features/signIn/signInSlice";
+import signInReducer from "./slices/signInSlice";
+import cartReducer from "./slices/cartSlice";
 
 export default configureStore({
   reducer: {
     signIn: signInReducer,
+    cart: cartReducer,
   },
   devTools: true,
 });

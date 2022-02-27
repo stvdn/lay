@@ -2,8 +2,8 @@ import React, { Fragment, useEffect, useState } from "react";
 import { Menu, Transition } from "@headlessui/react";
 import { Link } from "react-router-dom";
 import { doc, getDoc, getFirestore } from "firebase/firestore";
-import { useDispatch, useSelector } from "react-redux";
-import { signIn } from "../features/signIn/signInSlice";
+import { useDispatch } from "react-redux";
+import { signIn } from "../slices/signInSlice";
 import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
 import { notifyError, notifySuccess } from "../services/notification";
 import { ToastContainer } from "react-toastify";
@@ -12,43 +12,36 @@ export default function UserMenu() {
   const dispatch = useDispatch();
   const auth = getAuth();
   const [signInStatus, setSignInStatus] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const menuItemsLogged = [
     {
       title: "Perfil",
       icon: "fa fa-user",
       page: "profile",
+      onlyAdmin: false,
     },
     {
       title: "Historial compras",
       icon: "fa fa-history",
       page: "purchase-history",
+      onlyAdmin: false,
     },
     {
       title: "Historial ventas",
       icon: "fa fa-history",
       page: "sales-history",
+      onlyAdmin: true,
     },
     {
       title: "Publicar",
       icon: "fa fa-handshake-o",
       page: "upload-product",
+      onlyAdmin: true,
     },
     {
       title: "Cerrar sesión",
       icon: "fa fa-sign-out",
       page: "",
-    },
-  ];
-  const menuItemsNotLogged = [
-    {
-      title: "Iniciar sesión",
-      icon: "fa fa-user",
-      page: "sign-in",
-    },
-    {
-      title: "Registrarse",
-      icon: "fa fa-user",
-      page: "sign-up",
     },
   ];
 
@@ -68,6 +61,8 @@ export default function UserMenu() {
             })
           );
           setSignInStatus(true);
+          setIsAdmin(docSnap.data().isAdmin);
+          console.log(docSnap.data().isAdmin);
         } else {
           dispatch(
             signIn({
@@ -87,23 +82,23 @@ export default function UserMenu() {
     <Menu as="div" className="relative inline-block text-left">
       <ToastContainer />
       <div>
-        <Menu.Button>
-          <a className="hover: cursor-pointer hover:text-yellow-500">
-            {signInStatus ? (
-              <i
-                className="fa fa-user-circle mx-6"
-                aria-hidden="true"
-                style={{ fontSize: "30px" }}
-              ></i>
-            ) : (
-              <i
-                className="fa fa-sign-in mx-6"
-                aria-hidden="true"
-                style={{ fontSize: "30px" }}
-              ></i>
-            )}
-          </a>
-        </Menu.Button>
+        {signInStatus ? (
+          <Menu.Button>
+            <i
+              className="fa fa-user-circle mx-6"
+              aria-hidden="true"
+              style={{ fontSize: "30px" }}
+            ></i>
+          </Menu.Button>
+        ) : (
+          <Link to="/sign-in">
+            <i
+              className="fa fa-sign-in mx-6"
+              aria-hidden="true"
+              style={{ fontSize: "30px" }}
+            ></i>
+          </Link>
+        )}
       </div>
       <Transition
         as={Fragment}
@@ -116,9 +111,10 @@ export default function UserMenu() {
       >
         <Menu.Items className="absolute right-0 w-56 mt-2 origin-top-right bg-white divide-y divide-gray-100 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
           <div className="px-1 py-1 ">
-            {signInStatus
-              ? menuItemsLogged.map((item, index) => {
-                  return (
+            {signInStatus &&
+              menuItemsLogged.map((item, index) => {
+                return item.onlyAdmin ? (
+                  isAdmin && (
                     <MenuItem
                       title={item.title}
                       icon={item.icon}
@@ -126,18 +122,17 @@ export default function UserMenu() {
                       page={item.page}
                       setSignInStatus={setSignInStatus}
                     />
-                  );
-                })
-              : menuItemsNotLogged.map((item, index) => {
-                  return (
-                    <MenuItem
-                      title={item.title}
-                      icon={item.icon}
-                      key={index}
-                      page={item.page}
-                    />
-                  );
-                })}
+                  )
+                ) : (
+                  <MenuItem
+                    title={item.title}
+                    icon={item.icon}
+                    key={index}
+                    page={item.page}
+                    setSignInStatus={setSignInStatus}
+                  />
+                );
+              })}
           </div>
         </Menu.Items>
       </Transition>
