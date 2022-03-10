@@ -67,6 +67,7 @@ export default function SignIn() {
           <Input
             label="contraseña"
             name="password"
+            type="password"
             register={register}
             validations={{
               required: "Este campo es obligatorio",

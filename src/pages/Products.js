@@ -31,7 +31,7 @@ export default function Products() {
   return (
     <div>
       <h1 className="text-5xl text-center mt-5">Productos</h1>
-      <div className="grid grid-cols-[repeat(auto-fill,_minmax(15rem,_1fr))] gap-7 mx-7 mt-10">
+      <div className="grid grid-cols-[repeat(auto-fill,_minmax(15rem,_1fr))] gap-7 mx-7 mt-10 pb-10">
         {products.length > 0 &&
           products.map((product) => (
             <ProductCard key={product.id} product={product} />

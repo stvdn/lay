@@ -1,6 +1,13 @@
 import React from "react";
 
-export default function Input({ label, name, register, validations, errors }) {
+export default function Input({
+  label,
+  name,
+  register,
+  validations,
+  errors,
+  type,
+}) {
   const errorMessage = errors[name]?.message;
   return (
     <div className="mb-5">
@@ -8,7 +15,7 @@ export default function Input({ label, name, register, validations, errors }) {
         {label}
       </label>
       <input
-        type="text"
+        type={type ? type : "text"}
         className="w-full px-4 py-3 rounded-lg shadow-sm shadow-gray-500 focus:outline focus:outline-yellow-500  text-gray-600 font-medium"
         {...register(name, validations)}
       />

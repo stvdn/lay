@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import { updateProductQuantity } from "../slices/cartSlice";
 
 export default function Cart() {
   const [productsPrice, setProductsPrice] = useState(0);
-  const [deliveryPrice, setDeliveryPrice] = useState(10);
+  const [deliveryPrice, setDeliveryPrice] = useState(0);
   const [products, setProducts] = useState([]);
   const productsRedux = useSelector((state) => state.cart.products);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   useEffect(() => {
     setProducts(productsRedux);
@@ -33,6 +35,12 @@ export default function Cart() {
       parseFloat((productsPrice + change).toFixed(3).slice(0, -1))
     );
   };
+
+  const goToBuy = () => {
+    navigate("/buy");
+  };
+
+  const removeProduct = () => {};
 
   return (
     <div className="flex flex-col md:flex-row w-full items-center">
@@ -135,7 +143,7 @@ export default function Cart() {
             Envío
           </label>
           <select className="block p-2 text-gray-600 w-full text-sm">
-            <option>Envío estándar - $10.00</option>
+            <option>Acordar con el vendedor - $00.00</option>
           </select>
         </div>
         <div className="border-t mt-8">
@@ -147,6 +155,10 @@ export default function Cart() {
             className={`bg-gray-500 font-semibold py-3 text-sm text-white uppercase w-full ${
               products.length > 0 && " hover:bg-yellow-500 "
             }`}
+            disabled={products.length < 1}
+            onClick={() => {
+              goToBuy();
+            }}
           >
             Comprar
           </button>

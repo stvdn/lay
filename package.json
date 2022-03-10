@@ -3,12 +3,19 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@babel/plugin-proposal-class-properties": "^7.16.7",
+    "@babel/plugin-syntax-class-properties": "^7.12.13",
+    "@babel/plugin-syntax-class-static-block": "^7.14.5",
+    "@csstools/postcss-is-pseudo-class": "^2.0.0",
     "@headlessui/react": "^1.4.3",
     "@reduxjs/toolkit": "^1.7.2",
     "@testing-library/jest-dom": "^5.16.1",
     "@testing-library/react": "^12.1.2",
     "@testing-library/user-event": "^13.5.0",
     "firebase": "^9.6.6",
+    "firebase-tools": "^10.2.1",
+    "postcss-dir-pseudo-class": "^6.0.4",
+    "postcss-pseudo-class-any-link": "^7.1.1",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-hook-form": "^7.26.1",
@@ -46,6 +53,7 @@
     ]
   },
   "devDependencies": {
+    "@babel/plugin-proposal-class-static-block": "^7.17.6",
     "autoprefixer": "^10.4.2",
     "postcss": "^8.4.6",
     "tailwindcss": "^3.0.18"
