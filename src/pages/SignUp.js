@@ -2,13 +2,14 @@ import React from "react";
 import Input from "../components/Input";
 import { useForm } from "react-hook-form";
 import { ToastContainer, toast } from "react-toastify";
-import { useNavigate } from "react-router";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { signIn } from "../slices/signInSlice";
 import { addDocWithId } from "../services/firebase/firestore";
 import { createUserEmail } from "../services/firebase/fireauth";
 
 export default function SignUp() {
+  const location = useLocation();
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const notifySuccess = () =>
@@ -41,6 +42,15 @@ export default function SignUp() {
     formState: { errors },
   } = useForm();
 
+  const checkUserEmail = (data) => {
+    const { userEmail, userUID } = location.state;
+    if (userEmail) {
+      createUserDoc(userUID, data, userEmail);
+    } else {
+      registerUser(data);
+    }
+  };
+
   const registerUser = (data) => {
     createUserEmail(data)
       .then((userCredential) => {
@@ -50,7 +60,6 @@ export default function SignUp() {
       .catch((error) => {
         const errorCode = error.code;
         const errorMessage = error.message;
-        console.log("auth", errorCode, errorMessage);
         notifyError(errorMessage);
       });
   };
@@ -84,7 +93,7 @@ export default function SignUp() {
     <div>
       <ToastContainer />
       <h1 className="text-5xl text-center mt-5">Registro</h1>
-      <form onSubmit={handleSubmit(registerUser)}>
+      <form onSubmit={handleSubmit(checkUserEmail)}>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10 mx-10">
           <Input
             label="nombre"
@@ -140,42 +149,49 @@ export default function SignUp() {
             }}
             errors={errors}
           />
-          <Input
-            label="correo electrónico"
-            name="email"
-            register={register}
-            validations={{
-              required: "Este campo es obligatorio",
-            }}
-            errors={errors}
-          />
-          <Input
-            label="contraseña"
-            name="password"
-            register={register}
-            validations={{
-              required: "Este campo es obligatorio",
-            }}
-            errors={errors}
-          />
-          <Input
-            label="confirmar contraseña"
-            name="re-password"
-            register={register}
-            validations={{
-              required: "Este campo es obligatorio",
+          {!location.state.userEmail && (
+            <>
+              <Input
+                label="correo electrónico"
+                name="email"
+                register={register}
+                validations={{
+                  required: "Este campo es obligatorio",
+                }}
+                errors={errors}
+              />
+              <Input
+                label="contraseña"
+                name="password"
+                register={register}
+                validations={{
+                  required: "Este campo es obligatorio",
+                }}
+                errors={errors}
+              />
+              <Input
+                label="confirmar contraseña"
+                name="re-password"
+                register={register}
+                validations={{
+                  required: "Este campo es obligatorio",
 
-              validate: {
-                positive: () =>
-                  getValues("password") === getValues("re-password") ||
-                  "Las contraseñas deben ser las concidir.",
-              },
-            }}
-            errors={errors}
-          />
+                  validate: {
+                    positive: () =>
+                      getValues("password") === getValues("re-password") ||
+                      "Las contraseñas deben ser las concidir.",
+                  },
+                }}
+                errors={errors}
+              />
+            </>
+          )}
         </div>
         <div className="flex justify-center mt-10">
-          <button className="w-32 focus:outline-none border border-transparent py-2 px-5 rounded-lg shadow-sm text-center text-white bg-gray-500 hover:bg-yellow-500 font-medium">
+          <button
+            type="submit"
+            className="w-32 focus:outline-none border border-transparent py-2 px-5 rounded-lg shadow-sm text-center text-white bg-gray-500 hover:bg-yellow-500 font-medium"
+          >
             Registrarme
           </button>
         </div>

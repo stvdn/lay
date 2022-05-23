@@ -3,12 +3,20 @@ import Input from "../components/Input";
 import { useForm } from "react-hook-form";
 import { ToastContainer, toast } from "react-toastify";
 import { useDispatch } from "react-redux";
-import { useNavigate } from "react-router";
+import { useNavigate } from "react-router-dom";
 import { signIn } from "../slices/signInSlice";
 import { Link } from "react-router-dom";
-import { notifyError, notifySuccess } from "../services/notification";
-import { signInWithEmail } from "../services/firebase/fireauth";
+import {
+  notifyError,
+  notifyInfo,
+  notifySuccess,
+} from "../services/notification";
+import {
+  signInWithEmail,
+  signInWithGoogle,
+} from "../services/firebase/fireauth";
 import { getDocById } from "../services/firebase/firestore";
+import { FcGoogle } from "react-icons/fc";
 
 export default function SignIn() {
   const {
@@ -39,13 +47,48 @@ export default function SignIn() {
       .catch((error) => {
         const errorCode = error.code;
         const errorMessage = error.message;
-        notifyError(errorMessage, error.code);
+        notifyError(errorMessage, errorCode);
         reset();
       });
   };
 
+  const signInGoogle = () => {
+    signInWithGoogle()
+      .then((result) => {
+        const user = result.user;
+        checkIfUserExist(user);
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        notifyError(errorMessage, errorCode);
+      });
+  };
+
+  const checkIfUserExist = async (user) => {
+    const userId = user.uid;
+    const userData = await getUserData(userId);
+    if (userData) {
+      dispatch(
+        signIn({
+          signIn: true,
+          userId,
+          userData,
+          verifiedUser: user.emailVerified,
+        })
+      );
+      notifySuccess("Bienvenido!");
+      navigate("/");
+    } else {
+      notifyInfo("Necesitamos conocer mas de ti");
+      navigate("/sign-up", {
+        state: { userEmail: user.email, userUID: user.uid },
+      });
+    }
+  };
+
   const getUserData = async (id) => {
-    const docSnap = await getDocById(id);
+    const docSnap = await getDocById("users", id);
     return docSnap.data();
   };
 
@@ -76,13 +119,25 @@ export default function SignIn() {
           />
         </div>
         <div className="flex flex-col justify-center items-center mt-10">
-          <button className="w-32 focus:outline-none border border-transparent py-2 px-5 rounded-lg shadow-sm text-center text-white bg-gray-500 hover:bg-yellow-500 font-medium">
+          <div
+            className="mb-4 hover:cursor-pointer"
+            onClick={() => {
+              signInGoogle();
+            }}
+          >
+            <FcGoogle size={30} />
+          </div>
+          <button
+            type="submit"
+            className="w-32 focus:outline-none border border-transparent py-2 px-5 rounded-lg shadow-sm text-center text-white bg-gray-500 hover:bg-yellow-500 font-medium"
+          >
             Ingresar
           </button>
-          <Link to="/sign-up">
-            <button className="w-32 mt-8 focus:outline-none border border-transparent py-2 px-5 rounded-lg shadow-sm text-center text-white bg-gray-500 hover:bg-yellow-500 font-medium">
-              Registrarme
-            </button>
+          <Link
+            to="/sign-up"
+            className="text-gray-500 text-xl font-semibold mt-6 hover:text-yellow-500"
+          >
+            Registrarme
           </Link>
         </div>
       </form>

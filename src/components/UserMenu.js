@@ -1,12 +1,12 @@
 import React, { Fragment, useEffect, useState } from "react";
 import { Menu, Transition } from "@headlessui/react";
 import { Link } from "react-router-dom";
-import { doc, getDoc, getFirestore } from "firebase/firestore";
 import { useDispatch } from "react-redux";
 import { signIn } from "../slices/signInSlice";
 import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
 import { notifyError, notifySuccess } from "../services/notification";
 import { ToastContainer } from "react-toastify";
+import { getDocById } from "../services/firebase/firestore";
 
 export default function UserMenu() {
   const dispatch = useDispatch();
@@ -46,23 +46,26 @@ export default function UserMenu() {
   ];
 
   useEffect(() => {
+    const redirectUser = () => {};
+    const dispatchUser = (user, userDoc) => {
+      if (userDoc) {
+        dispatch(
+          signIn({
+            signIn: true,
+            userId: user.uid,
+            userData: userDoc,
+            verifiedUser: user.emailVerified,
+          })
+        );
+        setSignInStatus(true);
+        setIsAdmin(userDoc.data().isAdmin);
+      }
+    };
     const getCurrentUser = () => {
       onAuthStateChanged(auth, async (user) => {
         if (user) {
-          const db = getFirestore();
-          const docRef = doc(db, "users", user.uid);
-          const docSnap = await getDoc(docRef);
-          dispatch(
-            signIn({
-              signIn: true,
-              userId: user.uid,
-              userData: docSnap.data(),
-              verifiedUser: user.emailVerified,
-            })
-          );
-          setSignInStatus(true);
-          setIsAdmin(docSnap.data().isAdmin);
-          console.log(docSnap.data().isAdmin);
+          const userDoc = await getDocById("users", user.uid);
+          userDoc.exists() && dispatchUser(user, userDoc);
         } else {
           dispatch(
             signIn({
@@ -76,7 +79,7 @@ export default function UserMenu() {
       });
     };
     getCurrentUser();
-  }, [signInStatus]);
+  }, [signInStatus, auth, dispatch]);
 
   return (
     <Menu as="div" className="relative inline-block text-left">

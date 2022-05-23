@@ -23,3 +23,15 @@ export const notifyError = (message, onClose) =>
     progress: undefined,
     onClose,
   });
+
+export const notifyInfo = (message, onClose) =>
+  toast.info(message, {
+    position: "top-right",
+    autoClose: 3000,
+    hideProgressBar: false,
+    closeOnClick: true,
+    pauseOnHover: true,
+    draggable: true,
+    progress: undefined,
+    onClose,
+  });

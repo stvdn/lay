@@ -11,8 +11,6 @@ export const cartSlice = createSlice({
     },
     updateProductQuantity: (state, action) => {
       state.products[action.payload.index].quantity += action.payload.change;
-      console.log(action);
-      console.log(state.products[action.payload.index]);
     },
   },
 });

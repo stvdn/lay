@@ -17,9 +17,7 @@ export default function Profile() {
     reset(user);
   }, []);
 
-  const updateUser = (data) => {
-    console.log(data);
-  };
+  const updateUser = (data) => {};
 
   return (
     <div>
