@@ -46,14 +46,13 @@ export default function UserMenu() {
   ];
 
   useEffect(() => {
-    const redirectUser = () => {};
     const dispatchUser = (user, userDoc) => {
       if (userDoc) {
         dispatch(
           signIn({
             signIn: true,
             userId: user.uid,
-            userData: userDoc,
+            userData: userDoc.data(),
             verifiedUser: user.emailVerified,
           })
         );

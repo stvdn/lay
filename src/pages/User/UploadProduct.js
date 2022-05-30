@@ -28,7 +28,6 @@ export default function UploadProduct() {
   };
 
   const postProduct = async (data) => {
-    console.log(data);
     const productId = await addDocWithoutId("products", data);
     const pathPhoto = `images/${productId}`;
     uploadFile(productId, pathPhoto, imageFile).then(() => {

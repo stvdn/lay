@@ -14,6 +14,7 @@ export default function ProductCard({ product: { id, data } }) {
 
   const addCart = (data) => {
     data.quantity = 1;
+    data.id = id;
     dispatch(addToCart(data));
     notifySuccess("Producto agregrado!");
   };

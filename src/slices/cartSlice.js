@@ -12,9 +12,13 @@ export const cartSlice = createSlice({
     updateProductQuantity: (state, action) => {
       state.products[action.payload.index].quantity += action.payload.change;
     },
+    removeProductCart: (state, action) => {
+      state.products.pop(action.payload);
+    },
   },
 });
 
-export const { addToCart, updateProductQuantity } = cartSlice.actions;
+export const { addToCart, updateProductQuantity, removeProductCart } =
+  cartSlice.actions;
 
 export default cartSlice.reducer;

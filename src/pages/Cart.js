@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { updateProductQuantity } from "../slices/cartSlice";
+import { notifySuccess } from "../services/notification";
+import { updateProductQuantity, removeProductCart } from "../slices/cartSlice";
 
 export default function Cart() {
   const [productsPrice, setProductsPrice] = useState(0);
@@ -10,7 +11,6 @@ export default function Cart() {
   const productsRedux = useSelector((state) => state.cart.products);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
   useEffect(() => {
     setProducts(productsRedux);
     let totalPrice = 0;
@@ -18,7 +18,7 @@ export default function Cart() {
       totalPrice += product.price * product.quantity;
     });
     setProductsPrice(parseFloat(totalPrice.toFixed(3).slice(0, -1)));
-  }, []);
+  }, [productsRedux]);
 
   const updateQuantity = (index, change) => {
     dispatch(updateProductQuantity({ index, change }));
@@ -36,11 +36,14 @@ export default function Cart() {
     );
   };
 
+  const removeProduct = (product) => {
+    dispatch(removeProductCart(product));
+    notifySuccess("Producto eliminado!");
+  };
+
   const goToBuy = () => {
     navigate("/buy");
   };
-
-  const removeProduct = () => {};
 
   return (
     <div className="flex flex-col md:flex-row w-full items-center">
@@ -80,7 +83,10 @@ export default function Cart() {
                   <span className="text-red-500 text-xs">
                     {product.category}
                   </span>
-                  <a className="font-semibold hover:text-red-500 text-gray-500 text-xs">
+                  <a
+                    className="font-semibold hover:text-red-500 text-gray-500 text-xs"
+                    onClick={() => removeProduct(product)}
+                  >
                     Eliminar
                   </a>
                 </div>
