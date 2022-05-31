@@ -5,6 +5,7 @@ import {
   getDoc,
   addDoc,
   updateDoc,
+  collection,
 } from "firebase/firestore";
 
 export const addDocWithId = async (collection, id, data) => {
@@ -12,9 +13,9 @@ export const addDocWithId = async (collection, id, data) => {
   return await setDoc(doc(db, collection, id), data);
 };
 
-export const addDocWithoutId = async (collection, data) => {
+export const addDocWithoutId = async (collectionName, data) => {
   const db = getFirestore();
-  const docRef = await addDoc(collection(db, collection), data);
+  const docRef = await addDoc(collection(db, collectionName), data);
   return docRef.id;
 };
 

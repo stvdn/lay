@@ -1,40 +1,17 @@
 import React from "react";
 import Input from "../components/Input";
 import { useForm } from "react-hook-form";
-import { ToastContainer, toast } from "react-toastify";
-import { useNavigate, useLocation } from "react-router-dom";
+import { ToastContainer } from "react-toastify";
+import { useLocation } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { signIn } from "../slices/signInSlice";
 import { addDocWithId } from "../services/firebase/firestore";
 import { createUserEmail } from "../services/firebase/fireauth";
+import { notifyError, notifySuccess } from "../services/notification";
 
 export default function SignUp() {
   const location = useLocation();
-  const navigate = useNavigate();
   const dispatch = useDispatch();
-  const notifySuccess = () =>
-    toast.success("Bienvenid@!", {
-      position: "top-right",
-      autoClose: 1000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-      onClose: () => {
-        navigate("/");
-      },
-    });
-  const notifyError = (message) =>
-    toast.error(message, {
-      position: "top-right",
-      autoClose: 3000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-    });
   const {
     register,
     getValues,
@@ -58,7 +35,6 @@ export default function SignUp() {
         createUserDoc(user.uid, data, user.email);
       })
       .catch((error) => {
-        const errorCode = error.code;
         const errorMessage = error.message;
         notifyError(errorMessage);
       });
@@ -83,7 +59,7 @@ export default function SignUp() {
           userData: dataWithoutCredentials,
         })
       );
-      notifySuccess();
+      notifySuccess("Bienvenid@");
     } catch (error) {
       notifyError(error);
     }

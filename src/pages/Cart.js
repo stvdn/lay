@@ -1,16 +1,23 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { notifySuccess } from "../services/notification";
-import { updateProductQuantity, removeProductCart } from "../slices/cartSlice";
+import { addDocWithoutId } from "../services/firebase/firestore";
+import { notifyError, notifySuccess } from "../services/notification";
+import {
+  updateProductQuantity,
+  removeProductCart,
+  cleanCart,
+} from "../slices/cartSlice";
 
 export default function Cart() {
   const [productsPrice, setProductsPrice] = useState(0);
   const [deliveryPrice, setDeliveryPrice] = useState(0);
   const [products, setProducts] = useState([]);
   const productsRedux = useSelector((state) => state.cart.products);
+  const userId = useSelector((state) => state.signIn.userId);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
   useEffect(() => {
     setProducts(productsRedux);
     let totalPrice = 0;
@@ -41,8 +48,41 @@ export default function Cart() {
     notifySuccess("Producto eliminado!");
   };
 
-  const goToBuy = () => {
-    navigate("/buy");
+  const createPurchase = async () => {
+    const date = Date.now();
+    const productsId = getProductsId();
+    const purchaseData = {
+      date,
+      userId,
+      productsId,
+      bill: "",
+      completed: false,
+    };
+    try {
+      const purchaseId = await addDocWithoutId("purchases", purchaseData);
+      dispatch(cleanCart());
+      notifySuccess("Compra realizada con exito.\nRedireccionando...", () =>
+        goToPurchase(purchaseId)
+      );
+    } catch (error) {
+      notifyError(error);
+    }
+  };
+
+  const getProductsId = () => {
+    let productsId = [];
+    products.forEach((product) => {
+      productsId.push(product.id);
+    });
+    return productsId;
+  };
+
+  const goToPurchase = (purchaseId) => {
+    navigate("/purchase", {
+      state: {
+        purchaseId: purchaseId,
+      },
+    });
   };
 
   return (
@@ -163,7 +203,7 @@ export default function Cart() {
             }`}
             disabled={products.length < 1}
             onClick={() => {
-              goToBuy();
+              createPurchase();
             }}
           >
             Comprar

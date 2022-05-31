@@ -12,7 +12,7 @@ import UploadProduct from "./pages/User/UploadProduct";
 import Profile from "./pages/User/Profile";
 import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
-import Buy from "./pages/Buy";
+import Purchase from "./pages/Purchase";
 
 function App() {
   return (
@@ -29,7 +29,7 @@ function App() {
         <Route path="/purchase-history" element={<PurchaseHistory />} />
         <Route path="/sales-history" element={<SalesHistory />} />
         <Route path="/upload-product" element={<UploadProduct />} />
-        <Route path="/buy" element={<Buy />} />
+        <Route path="/purchase" element={<Purchase />} />
       </Routes>
     </BrowserRouter>
   );

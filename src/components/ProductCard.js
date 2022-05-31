@@ -1,15 +1,25 @@
 import React from "react";
 import ReactStars from "react-rating-stars-component";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { notifySuccess } from "../services/notification";
 import { addToCart } from "../slices/cartSlice";
+import { updateProductQuantity, removeProductCart } from "../slices/cartSlice";
 
 export default function ProductCard({ product: { id, data } }) {
   const dispatch = useDispatch();
+  const productsCart = useSelector((state) => state.cart.products);
+
   const startsConfig = {
     size: 30,
     value: 2.5,
     edit: false,
+  };
+
+  const checkProductCart = (id) => {
+    const indexProduct = productsCart.findIndex((productCart) => {
+      return productCart.id === id;
+    });
+    indexProduct != -1 ? updateProductCart(indexProduct, 1) : addCart(data);
   };
 
   const addCart = (data) => {
@@ -17,6 +27,11 @@ export default function ProductCard({ product: { id, data } }) {
     data.id = id;
     dispatch(addToCart(data));
     notifySuccess("Producto agregrado!");
+  };
+
+  const updateProductCart = (index, change) => {
+    dispatch(updateProductQuantity({ index, change }));
+    notifySuccess("Producto actualizado!");
   };
 
   return (
@@ -49,7 +64,7 @@ export default function ProductCard({ product: { id, data } }) {
             <span className="text-green-500 text-xl">$ {data.price}</span>
             <a
               onClick={() => {
-                addCart(data);
+                checkProductCart(id);
               }}
               className="hover:cursor-pointer hover:text-yellow-300"
             >
